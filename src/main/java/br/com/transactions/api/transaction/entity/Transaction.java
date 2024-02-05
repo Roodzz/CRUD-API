@@ -1,11 +1,15 @@
 package br.com.transactions.api.transaction.entity;
 
-import br.com.transactions.api.customer.entity.Customer;
 import br.com.transactions.api.company.entity.Company;
+import br.com.transactions.api.customer.entity.Customer;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 
 @Data
@@ -17,7 +21,7 @@ public class Transaction {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+    private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "customer_id", nullable = false)

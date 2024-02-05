@@ -18,3 +18,6 @@ spring:
 
   sql:
     init.mode: always
+
+webhook:
+  url: 'https://webhook.site/e64d0785-3bf8-4449-8445-8db6b045c7e6'

@@ -2,14 +2,14 @@ package br.com.transactions.api.transaction.dto.request;
 
 import br.com.transactions.api.transaction.entity.TransactionType;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Builder;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import java.math.BigDecimal;
 
-@Getter
-@Setter
+@Builder
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class TransactionCreateDTO {

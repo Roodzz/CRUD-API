@@ -1,8 +1,7 @@
 package br.com.transactions.api.transaction.service;
 
+import br.com.transactions.api.client.WebWrapperClient;
 import br.com.transactions.api.company.service.CompanyService;
-import br.com.transactions.api.customer.entity.Customer;
-import br.com.transactions.api.customer.repository.CustomerRepository;
 import br.com.transactions.api.customer.service.CustomerService;
 import br.com.transactions.api.transaction.dto.request.TransactionCreateDTO;
 import br.com.transactions.api.transaction.dto.response.ConsolidatedTransactionResponseDTO;
@@ -12,9 +11,9 @@ import br.com.transactions.api.transaction.entity.TransactionType;
 import br.com.transactions.api.transaction.repository.TransactionRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
@@ -29,8 +28,11 @@ public class TransactionService {
     private final TransactionRepository transactionRepository;
     private final CustomerService customerService;
     private final CompanyService companyService;
+    private final WebWrapperClient webWrapperClient;
 
-    @Transactional
+    @Value("${webhook.url}")
+    private String webhookURL;
+
     public Transaction save(TransactionCreateDTO createDTO) {
         log.info("Adding new transaction for companyId: {} by customerId: {}", createDTO.getCompanyId(), createDTO.getCustomerId());
 
@@ -49,8 +51,19 @@ public class TransactionService {
         }
 
         transaction.setAmount(amount.subtract(company.getTransactionTax()));
+        transaction = transactionRepository.save(transaction);
 
-        return transactionRepository.save(transaction);
+        notifyWebhook(transaction);
+
+        log.info("Transaction saved with success: {}", transaction.getId().toString());
+
+        return transaction;
+    }
+
+    public void notifyWebhook(Transaction transaction) {
+        log.info("Notify webhook of transactionId: {}", transaction.getId().toString());
+
+        webWrapperClient.post(webhookURL, transaction);
     }
 
     public ConsolidatedTransactionResponseDTO findConsolidatedByCompanyId(String companyId){
